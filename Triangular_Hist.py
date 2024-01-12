@@ -2,7 +2,7 @@ class Triangular_Hist:
     def __init__(self,N_bin=50):
         '''
         :param N_bin: Number of Bins in one direction, total number will be approx. N*N/2
-        '''
+        ''' 
 
 
     def fill(self, position, value):
