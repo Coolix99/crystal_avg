@@ -1,22 +1,21 @@
+import numpy as np
+from typing import List
+
 class Polygon:
-    def __init__(self,pointList):
+    def __init__(self,pointList:List[np.array]):
         '''
-        :param N_bin: N_bin of each triangular segment
-        :param N_bin:
+        :param pointList: List of edge points in right order (2D)
         '''
+        self.Points=np.array(pointList)
+        # calculate the centroid
+        A=0
+        N=self.Points.shape[0]
+        for i in range(N):
+            A+=(self.Points[i,0]*self.Points[(i+1)%N,1]-self.Points[i,1]*self.Points[(i+1)%N,0])
+        A=A/2
 
-
-    def fill(self, position, value):
-        """
-        :param position: Position in the standard triangular
-        :param value: value to be added
-        """
-        #TODO
-
-    def get_entry(self, key):
-        """
-        Retrieves the value associated with a given key in the histogram.
-        :param position: Position in the standard triangular
-        :return: The value associated with the position
-        """
-        return #TODO
+        self.C=np.zeros(2)
+        for i in range(N):
+            self.C[0]+=(self.Points[i,0]+self.Points[(i+1)%N,0])*(self.Points[i,0]*self.Points[(i+1)%N,1]-self.Points[i,1]*self.Points[(i+1)%N,0])
+            self.C[1]+=(self.Points[i,1]+self.Points[(i+1)%N,1])*(self.Points[i,0]*self.Points[(i+1)%N,1]-self.Points[i,1]*self.Points[(i+1)%N,0])
+        self.C=self.C/6/A
