@@ -15,15 +15,20 @@ def getRefCoordinates(p0,p1,center,position):
     re0=np.dot(r,e0)
     re1=np.dot(r,e1)
 
-    return np.array((re0-re1*e0e1,re1-re0*e0e1))/(1-e0e1*e0e1)
+    refCoord=np.array((re0-re1*e0e1,re1-re0*e0e1))/(1-e0e1*e0e1)
+    refCoord[0]=refCoord[0]/np.linalg.norm(p0-center)
+    refCoord[1]=refCoord[1]/np.linalg.norm(p1-center)
+    return refCoord
 
 def isIn(refCoord):
-    if refCoord[0]>1 or refCoord[1]>1 or refCoord[0]<0 or refCoord[0]<0:
+    if refCoord[0]>1 or refCoord[1]>1 or refCoord[0]<0 or refCoord[1]<0:
+        return False
+    if refCoord[0]+refCoord[1]>1:
         return False
     return True
 
 class Polygon_Hist:
-    def __init__(self,N_poly:int,N_bin:int = 50,dtype=np.float16):
+    def __init__(self,N_poly:int,N_bin:int = 50,dtype=np.float32):
         '''
         :param N_poly: number of edges of the polygon
         :param N_bin: N_bin of each triangular segment
@@ -34,13 +39,12 @@ class Polygon_Hist:
             self.Data.append(Triangular_Hist(N_bin,dtype))
         self.N_segments=len(self.Data)
 
-
-    def fill(self, polygon:Polygon, position, value, guess_segment=0):
+    def findCoord(self, polygon:Polygon, position, guess_segment=0):
         """
         :param polygon: Polygon geometry
         :param position: Position in the polygon
-        :param value: value to be added
         :param guess_segment: guess in which segement the position could be
+        :return: segemnt in which position was found. None if it was outside
         """
         if polygon.Points.shape[0]!=self.N_segments:
             raise ValueError('not correct polygon')
@@ -48,14 +52,38 @@ class Polygon_Hist:
             segment=(i+guess_segment)%self.N_segments
             refCoord=getRefCoordinates(polygon.Points[segment,:],polygon.Points[(segment+1)%self.N_segments,:],polygon.C,position)
             if isIn(refCoord):
-                self.Data[segment].fill(refCoord,value)
-                return segment
+                return segment,refCoord
         return None
 
-    def get_entry(self, key):
+
+    def fill(self, polygon:Polygon, position, value, guess_segment=0):
         """
-        Retrieves the value associated with a given key in the histogram.
-        :param position: Position in the standard triangular
+        :param polygon: Polygon geometry
+        :param position: Position in the polygon
+        :param value: value to be added
+        :param guess_segment: guess in which segement the position could be
+        :return: segemnt in which position was found. None if it was outside
+        """
+        
+        res= self.findCoord(polygon, position, guess_segment)
+        if res is None:
+            return None
+        segment=res[0]
+        refCoord=res[1]
+        self.Data[segment].fill(refCoord,value)
+        return segment
+
+    def get_entry(self, polygon:Polygon, position, guess_segment=0):
+        """
+        Retrieves the value associated with a position in the histogram.
+        :param position: Position in the polygon
+        :param polygon: geometry
+        :param guess_segment: guess in which segment the position could be
         :return: The value associated with the position
         """
-        return #TODO
+        res= self.findCoord(polygon, position, guess_segment)
+        if res is None:
+            return None
+        segment=res[0]
+        refCoord=res[1]
+        return self.Data[segment].get_entry(refCoord)
