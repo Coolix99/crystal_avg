@@ -9,13 +9,15 @@ def main():
 
     polygon1=Polygon(pList)
     print(polygon1.C)
-    hist=Polygon_Hist(3)
+    hist=Polygon_Hist(3,10)
     for i in range(Image.shape[0]):
         for j in range(Image.shape[1]):
             p=np.array((i,j),dtype=int)
             hist.fill(polygon1,p,Image[p[0],p[1]])
     p=np.array((3,10),dtype=int)
     print(hist.get_entry(polygon1,p))
+
+    hist.plot(polygon1)
 
 if __name__ == "__main__":
     main()

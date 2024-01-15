@@ -34,3 +34,17 @@ class Triangular_Hist:
         """
         i=self.getIndex(position)
         return self.Data[i], self.count[i]
+    
+
+    def sample(self):
+        x=np.zeros_like(self.Data,dtype=np.float32)
+        y=np.zeros_like(self.Data,dtype=np.float32)
+        v=np.zeros_like(self.Data,dtype=np.float32)
+        for i1 in range(self.N_bin):
+            for i0 in range(self.N_bin-i1):
+                i=i0+int((2*self.N_bin*i1+i1-i1*i1)/2)
+                if self.count[i]==0:
+                    continue
+                x[i],y[i],v[i]=(i0+0.5)/self.N_bin, (i1+0.5)/self.N_bin, self.Data[i]/self.count[i]
+        return x,y,v
+

@@ -87,3 +87,38 @@ class Polygon_Hist:
         segment=res[0]
         refCoord=res[1]
         return self.Data[segment].get_entry(refCoord)
+    
+    def sample_Segment(self, segment:int,polygon:Polygon):
+        x,y,val=self.Data[segment].sample()
+        v1=polygon.Points[segment,:]-polygon.C
+        v2=polygon.Points[(segment+1)%self.N_segments,:]-polygon.C
+        p=np.outer(x, v1)+np.outer(y, v2)+polygon.C
+        return p,val
+
+    def sample_Polygon(self,polygon:Polygon):
+        all_p=[]
+        all_val=[]
+        for i in range(self.N_segments):
+            p,val=self.sample_Segment(i,polygon)
+            all_p.append(p)
+            all_val.append(val)
+        p=np.vstack(all_p)
+        print(p.shape)
+        val=np.concatenate(all_val)
+        return p,val
+
+    def plot(self,polygon:Polygon):
+        p,val=self.sample_Polygon(polygon)
+
+        import matplotlib.pyplot as plt
+        import matplotlib.tri as tri
+   
+
+        x = p[:, 0]
+        y = p[:, 1]
+
+        fig, ax = plt.subplots()
+        ax.tricontour(x, y, val, levels=14,  cmap="RdBu_r")
+        plt.show()
+
+        return
