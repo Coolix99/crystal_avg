@@ -108,17 +108,27 @@ class Polygon_Hist:
         return p,val
 
     def plot(self,polygon:Polygon):
-        p,val=self.sample_Polygon(polygon)
+        p,z=self.sample_Polygon(polygon)
 
         import matplotlib.pyplot as plt
         import matplotlib.tri as tri
    
-
         x = p[:, 0]
         y = p[:, 1]
 
+        triang = tri.Triangulation(x, y)
+        # Refine data
+        refiner = tri.UniformTriRefiner(triang)
+        tri_refi, z_test_refi = refiner.refine_field(z, subdiv=3)
+        # Plot the triangulation and the high-res iso-contours
         fig, ax = plt.subplots()
-        ax.tricontour(x, y, val, levels=14,  cmap="RdBu_r")
+        ax.set_aspect('equal')
+        ax.triplot(triang, lw=0.5, color='white')
+        levels = np.linspace(np.min(z), np.max(z), 5)
+        contour=ax.tricontourf(tri_refi, z_test_refi, levels=levels, cmap='RdBu_r')
+        ax.tricontour(tri_refi, z_test_refi, levels=levels,
+                    colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
+                    linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
+        cbar = plt.colorbar(contour, ax=ax)
         plt.show()
-
         return
