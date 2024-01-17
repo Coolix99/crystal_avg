@@ -5,6 +5,13 @@ from Polygon import Polygon
 from Triangular_Hist import Triangular_Hist
 
 def getRefCoordinates(p0,p1,center,position):
+    """
+    :param p0: first point (edge of polygon)
+    :param p1: second point (edge of polygon)
+    :param center: center of polygon
+    :position: position which should be translated in ref coordinates
+    :return: reference coordinates of position
+    """
     e0=p0-center
     e0=e0/np.linalg.norm(e0)
     e1=p1-center
@@ -21,6 +28,11 @@ def getRefCoordinates(p0,p1,center,position):
     return refCoord
 
 def isIn(refCoord):
+    """
+    Check wether calculated refCoordinates are inside the triangle.
+    :param refCoord:
+    :return: True if in, False else
+    """
     if refCoord[0]>1 or refCoord[1]>1 or refCoord[0]<0 or refCoord[1]<0:
         return False
     if refCoord[0]+refCoord[1]>1:
@@ -55,8 +67,7 @@ class Polygon_Hist:
                 return segment,refCoord
         return None
 
-
-    def fill(self, polygon:Polygon, position, value, guess_segment=0):
+    def fill(self, polygon:Polygon, position, value, guess_segment:int=0):
         """
         :param polygon: Polygon geometry
         :param position: Position in the polygon
@@ -64,7 +75,6 @@ class Polygon_Hist:
         :param guess_segment: guess in which segement the position could be
         :return: segemnt in which position was found. None if it was outside
         """
-        
         res= self.findCoord(polygon, position, guess_segment)
         if res is None:
             return None
@@ -73,7 +83,7 @@ class Polygon_Hist:
         self.Data[segment].fill(refCoord,value)
         return segment
 
-    def get_entry(self, polygon:Polygon, position, guess_segment=0):
+    def get_entry(self, polygon:Polygon, position, guess_segment:int=0):
         """
         Retrieves the value associated with a position in the histogram.
         :param position: Position in the polygon
@@ -89,6 +99,9 @@ class Polygon_Hist:
         return self.Data[segment].get_entry(refCoord)
     
     def sample_Segment(self, segment:int,polygon:Polygon):
+        """
+        Returns positions and values in a segment
+        """
         x,y,val=self.Data[segment].sample()
         v1=polygon.Points[segment,:]-polygon.C
         v2=polygon.Points[(segment+1)%self.N_segments,:]-polygon.C
@@ -96,6 +109,9 @@ class Polygon_Hist:
         return p,val
 
     def sample_Polygon(self,polygon:Polygon):
+        """
+        Returns positions and values in polygon
+        """
         all_p=[]
         all_val=[]
         for i in range(self.N_segments):

@@ -5,8 +5,13 @@ from Polygon import Polygon
 from Polygon_Hist import Polygon_Hist
 
 def sum_Hist(poly_Hist_List: List[Polygon_Hist]):
+    """
+    Combines several Histogramms
+    :param poly_Hist_List: List of Histogramms
+    :return: combined Histogramm 
+    """
     first=poly_Hist_List[0]
-    #check wether all have same properties
+    #check wether all Histograms have same properties
     for i in range(1,len(poly_Hist_List)):
         if poly_Hist_List[i].N_segments!=first.N_segments:
             print('not all hist have the same number of segments (edges)')
@@ -16,7 +21,7 @@ def sum_Hist(poly_Hist_List: List[Polygon_Hist]):
             return None
     res_Hist=Polygon_Hist(first.N_segments,first.Data[0].N_bin,np.float32)
 
-    
+    #actual summation
     for i in range(res_Hist.N_segments):
         poly_Hist_Data_List=[]
         poly_Hist_Count_List=[]
@@ -32,10 +37,13 @@ def sum_Hist(poly_Hist_List: List[Polygon_Hist]):
     return res_Hist
 
 def main():
+    #test image
     Image=np.ones((50,50))
+    #create a polygon
     pList=[(2.1,40),(10,20),(30,45)]
     polygon=Polygon(pList)
 
+    #first Hist
     Image1 = Image+np.random.normal(0, 0.1, Image.shape)
     hist1=Polygon_Hist(3,6)
     for i in range(Image1.shape[0]):
@@ -43,7 +51,7 @@ def main():
             p=np.array((i,j),dtype=int)
             hist1.fill(polygon,p,Image1[p[0],p[1]])
     
-    
+    #secon one
     Image2 = Image+np.random.normal(0, 0.1, Image.shape)
     hist2=Polygon_Hist(3,6)
     for i in range(Image2.shape[0]):
@@ -51,6 +59,7 @@ def main():
             p=np.array((i,j),dtype=int)
             hist2.fill(polygon,p,Image2[p[0],p[1]])
 
+    #combine both and plot them 
     hist=sum_Hist([hist1,hist2])
     hist.plot(polygon)
 

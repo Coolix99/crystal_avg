@@ -11,6 +11,9 @@ class Triangular_Hist:
         self.count=np.zeros_like(self.Data,dtype=np.unsignedinteger)
 
     def getIndex(self,position):
+        '''
+        position -> index in data or count array
+        '''
         i0=int(position[0]*self.N_bin)
         i1=int(position[1]*self.N_bin)
         #print('i0',i0,'i1',i1)
@@ -28,15 +31,17 @@ class Triangular_Hist:
 
     def get_entry(self, position):
         """
-        Retrieves the value associated with a given key in the histogram.
         :param position: Position in the standard triangular
-        :return: The value associated with the position and number of filles
+        :return: sum of filled values and number of filles
         """
         i=self.getIndex(position)
         return self.Data[i], self.count[i]
     
 
     def sample(self):
+        '''
+        returns positions and values
+        '''
         x=np.zeros_like(self.Data,dtype=np.float32)
         y=np.zeros_like(self.Data,dtype=np.float32)
         v=np.zeros_like(self.Data,dtype=np.float32)
